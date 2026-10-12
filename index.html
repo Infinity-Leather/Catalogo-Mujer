@@ -434,8 +434,25 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 </div>
 <div class="macts">
 <button class="btn btn-wa" onclick="contactWhatsApp()"><span>Consultar por WhatsApp</span><i class="go"><svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"></path></svg></i></button>
+<button class="btn btn-pers" onclick="openEngraver()"><svg viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M5.6 5.6l2.8 2.8M15.6 15.6l2.8 2.8M18.4 5.6l-2.8 2.8M8.4 15.6l-2.8 2.8"></path></svg><span>Personalizar</span></button>
 <button class="btn btn-ghost" onclick="closeModal()">Seguir viendo</button>
 </div></div></div></div>
+<div class="eo" id="engOv"><div class="ew" role="dialog" aria-modal="true" aria-label="Personalizar billetera">
+<button class="ex2" onclick="closeEngraver()" aria-label="Cerrar"><svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>
+<div class="estage" id="engStage"><img id="engImg" alt="">
+<canvas id="engCv"></canvas>
+<div class="et" id="engTxt"><span id="engT"></span><i class="eh" id="engH"></i></div>
+<div class="ebot" id="engBot"><svg viewBox="0 0 70 78"><g class="rot"><ellipse cx="9" cy="14" rx="9" ry="3" fill="#9aa39a"></ellipse><ellipse cx="61" cy="14" rx="9" ry="3" fill="#9aa39a"></ellipse></g><rect x="8" y="14" width="3" height="10" fill="#6b746b"></rect><rect x="59" y="14" width="3" height="10" fill="#6b746b"></rect><rect x="10" y="22" width="50" height="38" rx="19" fill="#20252b" stroke="#c8e23a" stroke-width="2.5"></rect><circle cx="35" cy="40" r="15" fill="#0b0d10" stroke="#5c6670" stroke-width="2"></circle><circle cx="35" cy="40" r="10" fill="#c8e23a"></circle><circle class="iris" cx="35" cy="40" r="6" fill="#ff3b2f"></circle><circle cx="31" cy="36" r="2.4" fill="#fff" opacity=".85"></circle><path d="M29 60h12l-3 8h-6z" fill="#5c6670"></path><circle cx="35" cy="68" r="3" fill="#ff3b2f"></circle></svg><span class="say" id="engSay">¡Hola!</span></div>
+</div>
+<div class="epan">
+<div><h3>Personaliza tu billetera</h3><p id="engPn">Grabado láser con tu texto.</p></div>
+<div><label for="engIn">Texto a grabar</label><input type="text" id="engIn" value="Infity-Leather" maxlength="28" autocomplete="off"></div>
+<div><label>Estilo</label><div class="erow" id="engFonts"><button class="echip on" data-f="script">Firma</button><button class="echip" data-f="serif">Clásica</button><button class="echip" data-f="bold">Moderna</button></div></div>
+<div><label>Acabado</label><div class="erow" id="engCols"><button class="echip" data-c="#dfe3e8"><i style="background:#dfe3e8"></i>Plata</button><button class="echip" data-c="#e0b85a"><i style="background:#e0b85a"></i>Dorado</button><button class="echip" data-c="#2a1a10"><i style="background:#2a1a10"></i>Quemado</button></div></div>
+<button class="btn btn-wa" id="engRun"><span>Ejecutar grabado láser</span><i class="go"><svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg></i></button>
+<div class="ectl" id="engCtl"><label for="engSz">Tamaño del texto</label><input type="range" id="engSz" min="3" max="30" step=".5" value="9"><p style="margin-top:8px">Arrastra el texto para moverlo y usa el punto de la esquina (o la rueda del mouse) para reducirlo o ampliarlo.</p></div>
+<div class="erow"><button class="btn btn-ghost" id="engReset" style="flex:1;min-width:120px">Reiniciar</button><button class="btn btn-ghost" id="engWa" style="flex:2;min-width:180px">Consultar con mi diseño</button></div>
+</div></div></div>
 <div class="lb" id="imageLightbox" onclick="closeLightbox()"><div class="lbw"><img id="lightboxImg" src="" alt=""><div class="wm" id="lbWm"></div></div></div>
 </div>
 
@@ -744,6 +761,96 @@ document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('dragstart',e=>{if(e.target&&e.target.tagName==='IMG')e.preventDefault()});
 document.addEventListener('keydown',e=>{const k=(e.key||'').toLowerCase();
 if(k==='f12'||(e.ctrlKey&&e.shiftKey&&'ijc'.includes(k))||(e.ctrlKey&&k==='u')||(e.metaKey&&e.altKey&&'ijc'.includes(k)))e.preventDefault()});
+/* ===== Personalizar: grabado láser interactivo ===== */
+(function(){
+const $=id=>document.getElementById(id);
+const FT={script:"italic 700 {s} 'Segoe Script','Brush Script MT','Snell Roundhand','Lucida Handwriting',cursive",serif:"700 {s} Georgia,'Times New Roman',serif",bold:"800 {s} 'Sora','Hanken Grotesk',Arial,sans-serif"};
+const S={p:null,text:'',size:9,x:50,y:58,font:'script',col:'#dfe3e8',busy:false,done:false,raf:0};
+const fnt=(u)=>FT[S.font].replace('{s}',u)+'';
+let cv,cx,rv,rx,tm,tx,W,H,D,sparks=[];
+function say(t){$('engSay').textContent=t}
+function paintTxt(){const e=$('engTxt');$('engT').textContent=S.text;e.style.font=fnt(S.size+'cqw');e.style.left=S.x+'%';e.style.top=S.y+'%';e.style.color=S.col;
+e.style.textShadow=S.col==='#2a1a10'?'0 1px 0 rgba(255,255,255,.18),0 -1px 1px rgba(0,0,0,.6)':'0 1px 1px rgba(0,0,0,.85),0 0 7px rgba(255,255,255,.12)'}
+function setChip(box,attr,val){box.querySelectorAll('.echip').forEach(b=>b.classList.toggle('on',b.dataset[attr]===val))}
+function lumOf(img){try{const c=document.createElement('canvas');c.width=c.height=12;const k=c.getContext('2d');k.drawImage(img,0,0,12,12);const d=k.getImageData(0,0,12,12).data;let s=0;for(let i=0;i<d.length;i+=4)s+=(d[i]*.3+d[i+1]*.59+d[i+2]*.11);return s/(d.length/4)/255}catch(e){return .2}}
+window.openEngraver=function(){const p=currentProduct;if(!p)return;
+if(!S.p||S.p.codigo!==p.codigo){clearAll();S.p=p;S.x=50;S.y=58;S.size=9}
+const im=$('engImg'),src=imgSrc(p.imagen);
+im.onload=()=>{S.col=lumOf(im)>.55?'#2a1a10':'#dfe3e8';setChip($('engCols'),'c',S.col);paintTxt()};
+im.style.display=src?'':'none';if(src)im.src=src;
+$('engPn').textContent=p.nombre+' · COD.'+p.codigo;setChip($('engCols'),'c',S.col);setChip($('engFonts'),'f',S.font);
+$('engOv').classList.add('on');say('¡Listo para grabar!');showBot(false);
+const b=$('engBot');b.style.opacity=1;b.style.transform='translate(8px,8px)';
+setTimeout(()=>{if(!S.busy)b.style.opacity=0},1800)};
+window.closeEngraver=function(){cancelAnimationFrame(S.raf);S.busy=false;$('engRun').disabled=false;showBot(false);$('engOv').classList.remove('on')};
+function showBot(v){$('engBot').style.opacity=v?1:0}
+function clearAll(){cancelAnimationFrame(S.raf);S.busy=false;S.done=false;sparks=[];$('engTxt').classList.remove('show');$('engCtl').classList.remove('on');if(cx)cx.clearRect(0,0,cv.width,cv.height)}
+function setup(){const st=$('engStage');cv=$('engCv');W=st.clientWidth;H=st.clientHeight;D=Math.min(2,devicePixelRatio||1);
+cv.width=W*D;cv.height=H*D;cx=cv.getContext('2d');cx.setTransform(D,0,0,D,0,0);
+const mk=()=>{const c=document.createElement('canvas');c.width=W*D;c.height=H*D;return c};rv=mk();rx=rv.getContext('2d');tm=mk();tx=tm.getContext('2d')}
+function run(){if(S.busy)return;
+S.text=($('engIn').value||'').trim()||'Infity-Leather';$('engIn').value=S.text;
+clearAll();setup();
+const mw=S.text.length*S.size*.62;if(mw>86)S.size=Math.max(3,S.size*86/mw);$('engSz').value=S.size;
+const px=S.size/100*W,cxp=S.x/100*W,cyp=S.y/100*H;
+// texto completo en canvas oculto
+const tc=document.createElement('canvas');tc.width=W*D;tc.height=H*D;const k=tc.getContext('2d');k.scale(D,D);
+k.font=fnt(px+'px');k.textAlign='center';k.textBaseline='middle';
+const tw=k.measureText(S.text).width,th=px*1.15,x0=cxp-tw/2,x1=cxp+tw/2;
+k.shadowColor=S.col==='#2a1a10'?'rgba(255,255,255,.2)':'rgba(0,0,0,.85)';k.shadowOffsetY=1;k.shadowBlur=S.col==='#2a1a10'?0:1;
+k.fillStyle=S.col;k.fillText(S.text,cxp,cyp);
+S.busy=true;S.done=false;$('engRun').disabled=true;$('engCtl').classList.remove('on');
+const bot=$('engBot'),GAP=72,dur=2200+S.text.length*170,t0=performance.now();
+const sx=W+80,sy=-90,ex=Math.max(36,x0),ey=Math.max(4,cyp-GAP-66);let px0=ex,lastX=x0;
+bot.style.opacity=1;say('Calibrando…');
+function frame(now){const t=now-t0;cx.clearRect(0,0,W,H);let lx=x0,ly=cyp,beam=false,mx,my,tilt=0;
+if(t<800){const e=1-Math.pow(1-t/800,3);mx=sx+(ex-sx)*e;my=sy+(ey-sy)*e;tilt=-12*(1-e)}
+else if(t<800+dur){const u=(t-800)/dur;beam=true;lx=x0+u*(x1-x0);ly=cyp+Math.sin((t-800)/52)*th*.36;mx=Math.max(4,lx-35);my=Math.max(4,cyp-GAP-66)+Math.sin(t/160)*3;tilt=(lx-px0)*1.2;px0=lx;
+if(t-800<120)say('Grabando…');
+rx.save();rx.beginPath();rx.rect((lastX-2)*D,0,(lx-lastX+4)*D,H*D);rx.clip();rx.drawImage(tc,0,0);rx.restore();lastX=lx;
+for(let i=0;i<4;i++)sparks.push({x:lx,y:ly,vx:(Math.random()-.5)*4,vy:-Math.random()*3-.5,l:1,c:Math.random()<.5?'255,190,60':'255,110,40'})}
+else{const u=Math.min(1,(t-800-dur)/800),e=u*u;if(u===0||!S._o){S._o=1;rx.clearRect(0,0,W*D,H*D);rx.drawImage(tc,0,0);say('¡Listo!')}
+mx=ex+(dur?(x1-ex-35):0)+e*(W-x1+140);my=Math.max(4,cyp-GAP-66)-e*(cyp+160);tilt=e*30;bot.style.opacity=1-e;
+if(u>=1){finish();return}}
+cx.drawImage(rv,0,0,W,H);
+if(beam){const hx=Math.max(0,lx-46),hw=lx-hx;tx.setTransform(1,0,0,1,0,0);tx.globalCompositeOperation='source-over';tx.clearRect(0,0,W*D,H*D);
+tx.drawImage(rv,hx*D,0,hw*D,H*D,hx*D,0,hw*D,H*D);tx.globalCompositeOperation='source-in';
+const g=tx.createLinearGradient(hx*D,0,lx*D,0);g.addColorStop(0,'rgba(255,120,40,0)');g.addColorStop(1,'rgba(255,200,90,1)');tx.fillStyle=g;tx.fillRect(hx*D,0,hw*D,H*D);
+cx.globalCompositeOperation='lighter';cx.drawImage(tm,0,0,W,H);cx.globalCompositeOperation='source-over';
+const nx=mx+35,ny=my+68;cx.save();cx.lineCap='round';cx.shadowColor='#ff2a1a';cx.shadowBlur=16;cx.strokeStyle='rgba(255,50,35,.9)';cx.lineWidth=3.2;cx.beginPath();cx.moveTo(nx,ny);cx.lineTo(lx,ly);cx.stroke();cx.strokeStyle='#fff';cx.lineWidth=1.1;cx.stroke();cx.restore();
+const r=cx.createRadialGradient(lx,ly,0,lx,ly,22);r.addColorStop(0,'rgba(255,240,200,.95)');r.addColorStop(.35,'rgba(255,120,50,.55)');r.addColorStop(1,'rgba(255,60,20,0)');cx.fillStyle=r;cx.fillRect(lx-24,ly-24,48,48)}
+sparks=sparks.filter(s=>s.l>0);for(const s of sparks){s.x+=s.vx;s.y+=s.vy;s.vy+=.18;s.l-=.035;cx.fillStyle='rgba('+s.c+','+Math.max(0,s.l)+')';cx.fillRect(s.x,s.y,2,2)}
+bot.style.transform='translate('+mx+'px,'+my+'px) rotate('+tilt+'deg)';
+S.raf=requestAnimationFrame(frame)}
+S._o=0;S.raf=requestAnimationFrame(frame)}
+function finish(){S.busy=false;S.done=true;S._o=0;sparks=[];paintTxt();$('engTxt').classList.add('show');cx.clearRect(0,0,W,H);$('engBot').style.opacity=0;$('engRun').disabled=false;$('engCtl').classList.add('on')}
+// inputs
+$('engRun').onclick=run;
+$('engIn').addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+$('engIn').addEventListener('input',()=>{if(S.done){S.text=($('engIn').value||'').trim()||'Infity-Leather';paintTxt()}});
+$('engFonts').onclick=e=>{const b=e.target.closest('.echip');if(!b)return;S.font=b.dataset.f;setChip($('engFonts'),'f',S.font);if(S.done)paintTxt()};
+$('engCols').onclick=e=>{const b=e.target.closest('.echip');if(!b)return;S.col=b.dataset.c;setChip($('engCols'),'c',S.col);if(S.done)paintTxt()};
+$('engSz').oninput=e=>{S.size=+e.target.value;if(S.done)paintTxt()};
+$('engReset').onclick=()=>{clearAll();S.x=50;S.y=58;S.size=9;$('engSz').value=9;$('engRun').disabled=false;showBot(false);$('engIn').value='Infity-Leather'};
+$('engWa').onclick=()=>{const p=S.p;if(!p)return;const h=(typeof isH==='function'&&isH());
+const t='Hola, estoy '+(h?'interesado':'interesada')+' en '+p.nombre+' (COD.'+p.codigo+') con grabado láser personalizado: "'+($('engIn').value||'Infity-Leather')+'" en acabado '+({'#dfe3e8':'plata','#e0b85a':'dorado','#2a1a10':'quemado'}[S.col]||'plata')+'.';
+window.open('https://wa.me/51912472560?text='+encodeURIComponent(t),'_blank')};
+$('engOv').addEventListener('click',e=>{if(e.target.id==='engOv')closeEngraver()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('engOv').classList.contains('on')){e.stopImmediatePropagation();closeEngraver()}},true);
+// mover / escalar
+const T=$('engTxt'),Hd=$('engH'),ST=$('engStage');
+T.addEventListener('pointerdown',e=>{if(e.target===Hd||!S.done)return;e.preventDefault();T.setPointerCapture(e.pointerId);T.classList.add('drag');
+const r=ST.getBoundingClientRect(),ox=e.clientX-(S.x/100*r.width+r.left),oy=e.clientY-(S.y/100*r.height+r.top);
+const mv=ev=>{S.x=Math.min(96,Math.max(4,(ev.clientX-ox-r.left)/r.width*100));S.y=Math.min(96,Math.max(4,(ev.clientY-oy-r.top)/r.height*100));paintTxt()};
+const up=()=>{T.classList.remove('drag');T.removeEventListener('pointermove',mv);T.removeEventListener('pointerup',up);T.removeEventListener('pointercancel',up)};
+T.addEventListener('pointermove',mv);T.addEventListener('pointerup',up);T.addEventListener('pointercancel',up)});
+Hd.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();Hd.setPointerCapture(e.pointerId);T.classList.add('rs');
+const r=ST.getBoundingClientRect(),c0x=S.x/100*r.width+r.left,c0y=S.y/100*r.height+r.top,d0=Math.hypot(e.clientX-c0x,e.clientY-c0y)||1,s0=S.size;
+const mv=ev=>{S.size=Math.min(30,Math.max(3,s0*Math.hypot(ev.clientX-c0x,ev.clientY-c0y)/d0));$('engSz').value=S.size;paintTxt()};
+const up=()=>{T.classList.remove('rs');Hd.removeEventListener('pointermove',mv);Hd.removeEventListener('pointerup',up);Hd.removeEventListener('pointercancel',up)};
+Hd.addEventListener('pointermove',mv);Hd.addEventListener('pointerup',up);Hd.addEventListener('pointercancel',up)});
+ST.addEventListener('wheel',e=>{if(!S.done)return;e.preventDefault();S.size=Math.min(30,Math.max(3,S.size*(e.deltaY<0?1.06:.94)));$('engSz').value=S.size;paintTxt()},{passive:false});
+})();
 </script>
 
 
