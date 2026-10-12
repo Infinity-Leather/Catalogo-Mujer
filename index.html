@@ -401,6 +401,7 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 .mb.show{opacity:1;transform:translateX(calc(-50% + var(--bx,0px))) translateY(0) scale(1)}
 .mb.below{bottom:auto;top:calc(100% + 8px)}
 .mb.below::after{bottom:auto;top:-5px;box-shadow:-2px -2px 0 0 var(--lime)}
+.mb.sum{max-width:230px;white-space:pre-line;text-align:left;font-weight:600;line-height:1.4;padding:9px 13px}
 /* Partículas */
 .mfx{position:absolute;inset:0;pointer-events:none;overflow:visible}
 .mpt{position:absolute;left:50%;top:30%;font:800 1rem/1 var(--sans);opacity:0;animation:mPart 1.15s cubic-bezier(.2,.7,.3,1) forwards;text-shadow:0 1px 2px rgba(var(--sh),.25)}
@@ -637,7 +638,7 @@ function handleImgError(img){const m=img.closest('#modalImage'),w=document.creat
 if(m){m.classList.remove('zoom');m.onclick=null;const h=m.querySelector('.zh');if(h)h.remove()}}
 function card(p,i){
 const s=imgSrc(p.imagen),bio=p.material==='Bio-Cuero';
-return '<article class="card" style="--acc:'+accOf(p.ci)+';--i:'+(i%8)+'" onclick="openModal(\''+p.codigo+'\')">'+
+return '<article class="card" data-cod="'+p.codigo+'" style="--acc:'+accOf(p.ci)+';--i:'+(i%8)+'" onclick="openModal(\''+p.codigo+'\')">'+
 '<div class="pimg">'+(s?'<img src="'+s+'" alt="'+p.nombre+'" data-codigo="'+p.codigo+'" loading="lazy" onerror="handleImgError(this)">':ph(p.codigo))+'<span class="badge">'+(bio?'Bio-Cuero':'Cuero Vacuno')+'</span></div>'+
 '<div class="pinfo"><div class="prow"><div><div class="price">'+p.moneda+' '+p.precio.toFixed(2)+'</div><div class="code">COD.'+p.codigo+'</div></div><span class="arrow">'+IC.arr+'</span></div>'+
 '<h3 class="pname">'+p.nombre+'</h3><ul class="pdet"><li>'+IC.col+'<span>'+p.color+'</span></li><li>'+IC.tex+'<span>'+p.textura+'</span></li><li>'+IC.dim+'<span>'+p.dimensiones+'</span></li></ul></div></article>'}
@@ -670,14 +671,18 @@ const GL={happy:['✦','★','∞'],love:['♥','♥','✦'],wink:['★','✦'],
 const DUR={happy:1900,love:2500,wink:1900,wow:1900,dance:3100};
 const MSG={
 mujer:{name:'Cari',
-hello:'¡Hola! Soy Cari ✨ Tócame o arrástrame donde quieras',
+hello:'¡¡HOLAAA!! 🎉 ¡Soy Cari y qué emoción verte por aquí!',
+hello2:'Arrástrame sobre un producto y te cuento todo ✨',
+moti:['¡Tú puedes con todo! 💪✨','Cada día es una oportunidad para brillar 🌟','Hoy es un gran día para consentirte 💚','Lo mejor aún está por venir ✨','Cree en ti: ¡eres imparable!','Una buena actitud lo cambia todo 💫'],
 happy:['¡Qué gusto verte!','¡Hoy brillas! ✨','¡Elige tu favorita!'],
 love:['¡Amo el cuero! ♥','¡Todo es tan bonito!','¡Me enamoré de los colores!'],
 wink:['Psst… mira lo nuevo 😉','Buena elección 💚','Te guardo un secreto'],
 wow:['¡Uy! ¡Qué sorpresa!','¡Cuántos colores!','¡Wow, mira eso!'],
 dance:['¡A bailar! ♪','¡Qué divertido!','¡Vamos, vamos! ♫']},
 hombre:{name:'Billi',
-hello:'¡Hola! Soy Billi ✨ Tócame o arrástrame donde quieras',
+hello:'¡¡HOLAAA!! 🎉 ¡Soy Billi y qué emoción verte por aquí!',
+hello2:'Arrástrame sobre un producto y te cuento todo ✨',
+moti:['¡Sigue adelante, crack! 💪','Todo gran logro empieza con un primer paso ⚡','Tu estilo habla antes que tú 😎','Disciplina + actitud = éxito 🚀','No te rindas: lo mejor viene ahora ✨','Hazlo con calidad, hazlo con estilo 💚'],
 happy:['¡Qué gusto verte!','¡Buen día, crack! ✨','¡Elige el tuyo!'],
 love:['¡Amo el cuero! ♥','¡Pura calidad!','¡Qué buen estilo!'],
 wink:['Psst… mira lo nuevo 😉','Buena elección, jefe','Tengo un dato 💚'],
@@ -724,7 +729,7 @@ return '<svg viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="
 '<g transform="rotate(-12 90 68)"><ellipse class="arm arm-r" cx="90" cy="68" rx="5.5" ry="9" fill="#8aa02a"/></g></svg>'}
 
 window.mascotDestroy=function(){
-if(st){clearTimeout(st.tSleep);clearTimeout(st.tRev);clearTimeout(st.tBub);clearInterval(st.iZ);clearInterval(st.iIdle);removeEventListener('resize',st.onResize);removeEventListener('scroll',st.onScroll)}
+if(st){clearTimeout(st.tSleep);clearTimeout(st.tRev);clearTimeout(st.tBub);clearInterval(st.iZ);clearInterval(st.iIdle);removeEventListener('resize',st.onResize);removeEventListener('scroll',st.onScroll);clearInterval(st.iMot);clearTimeout(st.tCard);clearTimeout(st.tCk);['pointerdown','keydown','touchstart','wheel','pointermove'].forEach(ev=>removeEventListener(ev,st.onAct))}
 if(root)root.remove();root=null;st=null};
 
 window.mascotInit=function(){
@@ -745,8 +750,8 @@ function fromFrac(){const s=SZ();S.x=4+S.fx*Math.max(0,W()-s-8);S.y=4+S.fy*Math.
 function save(){const s=SZ();S.fx=(S.x-4)/Math.max(1,W()-s-8);S.fy=(S.y-4)/Math.max(1,H()-s-8);try{localStorage.setItem(KEY,JSON.stringify({fx:S.fx,fy:S.fy}))}catch(e){}}
 function mood(m){root.dataset.mood=m}
 function anim(a){root.dataset.anim='';void root.offsetWidth;root.dataset.anim=a}
-function say(t,ms){
-clearTimeout(S.tBub);bub.textContent=t;bub.classList.toggle('below',S.y<80);
+function say(t,ms,sum){
+clearTimeout(S.tBub);bub.classList.toggle('sum',!!sum);bub.textContent=t;bub.classList.toggle('below',S.y<(sum?130:80));
 bub.style.setProperty('--bx','0px');
 const bw=bub.offsetWidth,cx=S.x+SZ()/2,l=cx-bw/2;let bx=0;
 if(l<8)bx=8-l;else if(l+bw>W()-8)bx=W()-8-(l+bw);
@@ -764,11 +769,11 @@ s.style.left=(30+Math.random()*40)+'%';s.style.top=up?'30%':'70%';
 s.style.animationDelay=(i*60)+'ms';s.style.fontSize=(.8+Math.random()*.6)+'rem';
 fx.appendChild(s);setTimeout(()=>s.remove(),1600+i*60)}}
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-function react(m,text){
-clearTimeout(S.tRev);mood(m);anim(m);say(text||pick(M[m]));burst(m,m==='dance'?7:6);
+function react(m,text,ms){
+clearTimeout(S.tRev);mood(m);anim(m);say(text||pick(M[m]),ms);burst(m,m==='dance'?7:6);
 if(navigator.vibrate)try{navigator.vibrate(10)}catch(e){}
 S.tRev=setTimeout(()=>{if(!S.sleeping&&!S.drag){mood('idle');root.dataset.anim=''}},DUR[m]||1900)}
-function sleepTimer(){clearTimeout(S.tSleep);S.tSleep=setTimeout(goSleep,32000)}
+function sleepTimer(){clearTimeout(S.tSleep);S.tSleep=setTimeout(goSleep,55000)}
 function goSleep(){if(S.drag)return;S.sleeping=true;clearTimeout(S.tRev);mood('sleep');root.dataset.anim='';say('Zzz…',1800);burst('sleep',2);
 clearInterval(S.iZ);S.iZ=setInterval(()=>burst('sleep',2),2600)}
 function wake(){clearInterval(S.iZ);sleepTimer()}
@@ -783,21 +788,38 @@ let down=false,moved=false,sx=0,sy=0,ox=0,oy=0,pid=0;
 root.addEventListener('pointerdown',e=>{if(e.button>0)return;down=true;moved=false;sx=e.clientX;sy=e.clientY;ox=S.x;oy=S.y;pid=e.pointerId;try{root.setPointerCapture(pid)}catch(_){}});
 root.addEventListener('pointermove',e=>{if(!down)return;const dx=e.clientX-sx,dy=e.clientY-sy;
 if(!moved&&Math.hypot(dx,dy)>6){moved=true;S.drag=true;S.sleeping=false;wake();clearTimeout(S.tRev);root.classList.add('drag');root.dataset.anim='';mood('happy');bub.classList.remove('show')}
-if(moved){S.x=ox+dx;S.y=oy+dy;clamp();apply()}});
+if(moved){S.x=ox+dx;S.y=oy+dy;clamp();apply();if(!S.tCk)S.tCk=setTimeout(()=>{S.tCk=0;announce()},350)}});
 function up(e){if(!down)return;down=false;try{root.releasePointerCapture(pid)}catch(_){}
-if(moved){S.drag=false;root.classList.remove('drag');mood('idle');anim('land');save();burst('happy',3);if(Math.random()<.45)say(pick(['¡Aquí me quedo!','¡Buena vista!','¡Wiii!']),1500)}
+if(moved){S.drag=false;root.classList.remove('drag');mood('idle');anim('land');save();burst('happy',3);setTimeout(()=>{if(cardUnder())announce(true);else if(Math.random()<.45)say(pick(['¡Aquí me quedo!','¡Buena vista!','¡Wiii!']),1500)},260)}
 else if(e.type==='pointerup')poke()}
 root.addEventListener('pointerup',up);root.addEventListener('pointercancel',up);
 root.addEventListener('keydown',e=>{
 if(e.key==='Enter'||e.key===' '){e.preventDefault();poke();return}
 const d={ArrowLeft:[-24,0],ArrowRight:[24,0],ArrowUp:[0,-24],ArrowDown:[0,24]}[e.key];
 if(d){e.preventDefault();S.x+=d[0];S.y+=d[1];clamp();apply();save()}});
-S.onResize=()=>fromFrac();S.onScroll=()=>{if(!S.sleeping)sleepTimer()};
+S.onResize=()=>fromFrac();S.onScroll=()=>{S.act=Date.now();if(!S.sleeping)sleepTimer();clearTimeout(S.tCard);S.tCard=setTimeout(()=>announce(),700)};
 addEventListener('resize',S.onResize);addEventListener('scroll',S.onScroll,{passive:true});
 /* Guiño espontáneo ocasional */
 S.iIdle=setInterval(()=>{if(root.dataset.mood==='idle'&&!S.drag&&!S.sleeping&&Math.random()<.6){mood('wink');setTimeout(()=>{if(root.dataset.mood==='wink'&&!S.drag&&!S.sleeping)mood('idle')},1100)}},15000);
+/* Resumen del producto bajo la mascota */
+function cardUnder(){const sz=SZ(),els=document.elementsFromPoint(S.x+sz/2,S.y+sz/2),el=els.find(e=>!root.contains(e));return el&&el.closest?el.closest('.card'):null}
+function prodOf(cod){for(const c of catalogo.categorias){const f=c.productos.find(x=>x.codigo===cod);if(f)return f}return null}
+function summaryOf(p){return '✨ '+p.nombre+'\n'+[p.material,p.color,p.textura].filter(Boolean).join(' · ')+'\n📏 '+(p.dimensiones||'-')+'  ·  '+p.moneda+' '+p.precio.toFixed(2)}
+function announce(force){if(S.sleeping)return;const c=cardUnder();if(!c){S.overCod='';return}
+const cod=c.dataset.cod;if(!cod||(!force&&cod===S.overCod))return;S.overCod=cod;const p=prodOf(cod);if(!p)return;
+clearTimeout(S.tRev);if(!S.drag){mood('wow');anim('wow')}say(summaryOf(p),5400,true);burst('wow',5);
+S.tRev=setTimeout(()=>{if(!S.sleeping&&!S.drag){mood('idle');root.dataset.anim=''}},1900)}
+/* Inactividad: mensajes motivacionales */
+S.act=Date.now();S.lastMot=0;S.lastMsg='';
+S.onAct=()=>{S.act=Date.now();if(!S.sleeping)sleepTimer()};
+['pointerdown','keydown','touchstart','wheel','pointermove'].forEach(ev=>addEventListener(ev,S.onAct,{passive:true}));
+S.iMot=setInterval(()=>{const n=Date.now();if(S.sleeping||S.drag||down||n-S.act<9000||n-S.lastMot<10000||bub.classList.contains('show'))return;
+S.lastMot=n;let t;do{t=pick(M.moti)}while(t===S.lastMsg);S.lastMsg=t;react(pick(['happy','love','wink','dance']),t,3800)},1000);
 fromFrac();requestAnimationFrame(()=>root.classList.add('on'));sleepTimer();
-if(!helloDone){helloDone=true;setTimeout(()=>{if(root&&!S.drag&&!S.sleeping){mood('happy');anim('happy');say(M.hello,3600);burst('happy',5);setTimeout(()=>{if(!S.sleeping&&!S.drag)mood('idle')},1900)}},1400)}
+if(!helloDone){helloDone=true;setTimeout(()=>{if(!root||S.drag||S.sleeping)return;mood('dance');anim('dance');say(M.hello,3400);burst('dance',14);if(navigator.vibrate)try{navigator.vibrate([20,40,20])}catch(e){}
+setTimeout(()=>{if(root&&!S.drag&&!S.sleeping){mood('wow');anim('wow');burst('happy',8)}},1700);
+setTimeout(()=>{if(root&&!S.drag&&!S.sleeping){mood('happy');anim('happy');say(M.hello2,3800);burst('love',8)}},3600);
+setTimeout(()=>{if(root&&!S.drag&&!S.sleeping)mood('idle')},5800)},1000)}
 };
 })();
 
