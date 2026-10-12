@@ -314,6 +314,51 @@ button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-
 @media (prefers-reduced-motion:reduce){
 *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+/* ===== Personalizar: grabado láser ===== */
+.btn-pers{color:var(--ink);background:transparent;box-shadow:inset 0 0 0 1.5px var(--lime);padding:0 22px;gap:10px}
+.btn-pers svg{width:20px;height:20px;fill:none;stroke:var(--lime);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .5s var(--pop)}
+.btn-pers:hover svg{transform:rotate(90deg) scale(1.15)}
+[data-genero="hombre"] .btn-pers{background:var(--bg2);box-shadow:inset 0 0 0 1.5px rgba(200,226,58,.55)}
+.eo{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(6,8,4,.72);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.eo.on{opacity:1;visibility:visible}
+.ew{position:relative;display:grid;grid-template-columns:1fr;width:min(960px,100%);max-height:96dvh;overflow:auto;border-radius:24px;background:var(--surface);color:var(--ink);box-shadow:0 30px 80px -20px rgba(0,0,0,.7),inset 0 0 0 1px var(--line);transform:translateY(26px) scale(.95);transition:transform .45s var(--pop,cubic-bezier(.34,1.56,.64,1))}
+.eo.on .ew{transform:none}
+@media(min-width:780px){.ew{grid-template-columns:1.25fr 1fr}}
+.estage{position:relative;aspect-ratio:4/3;background:radial-gradient(circle at 50% 40%,#3a3f33,#15170f);overflow:hidden;container-type:inline-size;touch-action:none;user-select:none}
+.estage>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none}
+.estage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.et{position:absolute;transform:translate(-50%,-50%);padding:.15em .3em;white-space:nowrap;cursor:grab;line-height:1.15;display:none;border:1.5px dashed transparent;border-radius:6px;transition:border-color .2s;touch-action:none}
+.et.show{display:block;animation:epop .5s var(--pop,cubic-bezier(.34,1.56,.64,1))}
+.et:hover,.et.drag{border-color:rgba(200,226,58,.9)}
+.et.drag{cursor:grabbing}
+.et .eh{position:absolute;right:-9px;bottom:-9px;width:18px;height:18px;border-radius:50%;background:#c8e23a;border:2px solid #14171c;cursor:nwse-resize;opacity:0;transition:opacity .2s;touch-action:none}
+.et:hover .eh,.et.drag .eh,.et.rs .eh{opacity:1}
+@media(hover:none){.et{border-color:rgba(200,226,58,.6)}.et .eh{opacity:1;width:24px;height:24px;right:-12px;bottom:-12px}}
+@keyframes epop{from{transform:translate(-50%,-50%) scale(.85);opacity:.4}}
+.ebot{position:absolute;left:0;top:0;width:70px;height:78px;z-index:5;pointer-events:none;opacity:0;filter:drop-shadow(0 8px 10px rgba(0,0,0,.55));will-change:transform}
+.ebot svg{width:100%;height:100%;overflow:visible}
+.ebot .rot{transform-box:fill-box;transform-origin:center;animation:espin .25s linear infinite}
+.ebot .iris{animation:eiris 1.1s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes espin{to{transform:scaleX(-1)}}
+@keyframes eiris{50%{transform:scale(.7)}}
+.ebot .say{position:absolute;left:50%;top:-30px;transform:translateX(-50%);padding:4px 10px;border-radius:12px;background:#c8e23a;color:#14170a;font:700 11px/1.2 var(--display,system-ui);white-space:nowrap}
+.epan{display:flex;flex-direction:column;gap:14px;padding:26px 24px 24px}
+.epan h3{margin:0;font:700 1.4rem/1.1 var(--display,inherit);color:var(--head,inherit)}
+.epan p{margin:0;color:var(--ink2);font-size:.88rem}
+.epan label{font-size:.78rem;font-weight:700;color:var(--ink2);letter-spacing:.04em;text-transform:uppercase}
+.epan input[type=text]{width:100%;margin-top:6px;padding:14px 16px;border-radius:14px;border:0;background:var(--bg2);color:var(--ink);font:600 1rem inherit;box-shadow:inset 0 0 0 1.5px var(--line)}
+.epan input[type=text]:focus{outline:0;box-shadow:inset 0 0 0 2px var(--lime)}
+.erow{display:flex;gap:8px;flex-wrap:wrap}
+.echip{padding:8px 14px;border-radius:999px;border:0;background:var(--bg2);color:var(--ink);font-weight:600;font-size:.82rem;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--line);display:inline-flex;align-items:center;gap:7px}
+.echip.on{box-shadow:inset 0 0 0 2px var(--lime);color:var(--head,var(--ink))}
+.echip i{width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 1px rgba(0,0,0,.3)}
+.epan input[type=range]{width:100%;accent-color:#a3b52c;margin-top:6px}
+.ectl{opacity:.35;pointer-events:none;transition:opacity .3s}
+.ectl.on{opacity:1;pointer-events:auto}
+.epan .btn{width:100%}
+.epan .btn[disabled]{opacity:.6;pointer-events:none}
+.ex2{position:absolute;top:12px;right:12px;z-index:8;width:40px;height:40px;border-radius:50%;border:0;background:rgba(20,23,28,.7);color:#fff;cursor:pointer;display:grid;place-items:center;backdrop-filter:blur(6px)}
+.ex2 svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
 </style>
 <style id="mascotCss">
 /* ===== Mascota virtual (Cari = cartera / Billi = billetera) ===== */
